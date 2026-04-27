@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h2>Sorting Visualizer</h2>
+
+    <select id="algorithm">
+        <option value="bubble">Bubble Sort</option>
+        <option value="selection">Selection Sort</option>
+        <option value="insertion">Insertion Sort</option>
+    </select>
+
+    <button onclick="generate()">Generate</button>
+    <button onclick="start()">Start</button>
+    <button onclick="prev()">Prev</button>
+    <button onclick="next()">Next</button>
+
+    <label>
+        Speed:
+        <input type="range" id="speed" min="100" max="1000" value="300">
+    </label>
+
+    <br><br>
+
+    <input type="text" id="manualInput" placeholder="e.g. 34,12,78,5,20" size="30">
+    <button onclick="useInput()">Use Input</button>
+
+    <div id="array"></div>
+
+    <div class="info">
+        <p id="status">Press Start</p>
+        <p id="stats">
+            Comparisons: 0 | Moves: 0 <br>
+            Time Complexity: - | Space Complexity: O(1)
+        </p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
