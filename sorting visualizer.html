@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sorting Visualizer</title>
+<style>
+body{
+    background:#111;
+    color:white;
+    text-align:center;
+    font-family:Arial;
+    padding:20px;
+}
+#array{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:6px;
+    min-height:350px;
+    margin-top:20px;
+}
+.bar-container{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+.value{
+    margin-bottom:6px;
+    font-size:14px;
+    font-weight:bold;
+}
+.bar{
+    width:35px;
+    background:#4cafef;
+    border-radius:6px 6px 0 0;
+}
+button,input,select{
+    padding:8px;
+    margin:5px;
+}
+.info{
+    margin-top:20px;
+    font-size:18px;
+}
+</style>
+</head>
+<body>
+
+<h2>Sorting Visualizer</h2>
+
+<select id="algorithm">
+    <option value="bubble">Bubble Sort</option>
+    <option value="selection">Selection Sort</option>
+    <option value="insertion">Insertion Sort</option>
+</select>
+
+<button onclick="generate()">Generate</button>
+<button onclick="start()">Start</button>
+<button onclick="prev()">Prev</button>
+<button onclick="next()">Next</button>
+
+Speed:
+<input type="range" id="speed" min="100" max="1000" value="300">
+
+<br><br>
+<input type="text" id="manualInput" placeholder="e.g. 34,12,78,5,20" size="30">
+<button onclick="useInput()">Use Input</button>
+
+<div id="array"></div>
+
+<div class="info">
+<p id="status">Press Start</p>
+<p id="stats">
+Comparisons: 0 | Moves: 0 <br>
+Time Complexity: - | Space Complexity: O(1)
+</p>
+</div>
+
+<script>
+let arr=[], steps=[], iStep=0;
+
+function generate(){
+    arr=[]; steps=[]; iStep=0;
+    for(let i=0;i<10;i++) arr.push(Math.floor(Math.random()*90)+10);
+    draw(arr);
+    resetStats("Generated Array");
+}
+
+function useInput(){
+    let input=document.getElementById("manualInput").value;
+    let values=input.split(",").map(x=>Number(x.trim()));
+    if(values.some(isNaN)){ alert("Invalid input"); return; }
+    arr=values; steps=[]; iStep=0;
+    draw(arr);
+    resetStats("Manual Input Array");
+}
+
+function resetStats(msg){
+    document.getElementById("status").innerText=msg+": ["+arr.join(", ")+"]";
+    document.getElementById("stats").innerHTML=
+        "Comparisons: 0 | Moves: 0 <br> Time Complexity: - | Space Complexity: O(1)";
+}
+
+function draw(a){
+    let d=document.getElementById("array");
+    d.innerHTML="";
+    a.forEach(v=>{
+        let c=document.createElement("div");
+        c.className="bar-container";
+        c.innerHTML=`<div class="value">${v}</div>
+                     <div class="bar" style="height:${v*3}px"></div>`;
+        d.appendChild(c);
+    });
+}
+
+function record(a,c,m){
+    steps.push({array:[...a],comparisons:c,moves:m});
+}
+
+function start(){
+    steps=[];
+    let algo=document.getElementById("algorithm").value;
+    let a=[...arr];
+    let comp=0,moves=0;
+
+    if(algo==="bubble"){
+        for(let i=0;i<a.length;i++){
+            for(let j=0;j<a.length-i-1;j++){
+                comp++;
+                if(a[j]>a[j+1]){
+                    [a[j],a[j+1]]=[a[j+1],a[j]];
+                    moves++;
+                }
+                record(a,comp,moves);
+            }
+        }
+    }
+
+    else if(algo==="selection"){
+        for(let i=0;i<a.length-1;i++){
+            let min=i;
+            for(let j=i+1;j<a.length;j++){
+                comp++;
+                if(a[j]<a[min]) min=j;
+                record(a,comp,moves);
+            }
+            if(min!==i){
+                [a[i],a[min]]=[a[min],a[i]];
+                moves++;
+                record(a,comp,moves);
+            }
+        }
+    }
+
+    else if(algo==="insertion"){
+        for(let i=1;i<a.length;i++){
+            let key=a[i];
+            let j=i-1;
+
+            while(j>=0){
+                comp++;
+                if(a[j]>key){
+                    a[j+1]=a[j];
+                    moves++;
+                    record(a,comp,moves);
+                    j--;
+                } else break;
+            }
+
+            a[j+1]=key;
+            record(a,comp,moves);
+        }
+    }
+
+    iStep=0;
+    play();
+}
+
+function play(){
+    if(iStep>=steps.length){
+        document.getElementById("status").innerText="Sorting Completed!";
+        return;
+    }
+
+    let algo=document.getElementById("algorithm").value;
+    let tc = algo==="bubble" ? "O(n²)" :
+             algo==="selection" ? "O(n²)" : "O(n²)";
+
+    let step=steps[iStep];
+    draw(step.array);
+
+    document.getElementById("status").innerText=
+        "Step "+(iStep+1)+": ["+step.array.join(", ")+"]";
+
+    document.getElementById("stats").innerHTML=
+        `Comparisons: ${step.comparisons} | Moves: ${step.moves}<br>
+         Time Complexity: ${tc} | Space Complexity: O(1)`;
+
+    iStep++;
+    setTimeout(play,document.getElementById("speed").value);
+}
+
+function next(){
+    if(iStep<steps.length){
+        let step=steps[iStep++];
+        draw(step.array);
+    }
+}
+
+function prev(){
+    if(iStep>1){
+        let step=steps[--iStep-1];
+        draw(step.array);
+    }
+}
+
+generate();
+</script>
+
+</body>
+</html>
